@@ -1,32 +1,43 @@
 const canvas = document.getElementById('gameCanvas');
 const context = canvas.getContext('2d');
 
+const backgroundImage = new Image();
+backgroundImage.src = 'background.jpg';
+
+const snakeHeadImage = new Image();
+snakeHeadImage.src = 'snakeHead.png';
+
+const snakeBodyImage = new Image();
+snakeBodyImage.src = 'snakeBody.png';
+
+const fruitImage = new Image();
+fruitImage.src = 'fruit.png';
+
 function resizeCanvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 }
 resizeCanvas();
-window.addEventListener('resize', resizeCanvas); 
+window.addEventListener('resize', resizeCanvas);
 
-const blockSize = 20; 
-let snake = []; 
-let direction = {x: 1, y: 0}; 
-let fruits = []; 
+const blockSize = 20;
+let snake = [];
+let direction = {x: 1, y: 0};
+let fruits = [];
 let score = 0;
 let gameOver = false;
 let gamePaused = false;
-let speed = 90; 
+let speed = 80;
 
-let lastMoveTime = 0; 
+let lastMoveTime = 0;
 
 function init() {
-    
     snake = [
         {x: Math.floor(canvas.width / 2 / blockSize) * blockSize, y: Math.floor(canvas.height / 2 / blockSize) * blockSize},
         {x: Math.floor(canvas.width / 2 / blockSize) * blockSize - blockSize, y: Math.floor(canvas.height / 2 / blockSize) * blockSize},
         {x: Math.floor(canvas.width / 2 / blockSize) * blockSize - 2 * blockSize, y: Math.floor(canvas.height / 2 / blockSize) * blockSize},
     ];
-    direction = {x: 1, y: 0}; 
+    direction = {x: 1, y: 0};
     score = 0;
     gameOver = false;
     gamePaused = false;
@@ -36,46 +47,19 @@ function init() {
 function drawSnake() {
     snake.forEach((segment, index) => {
         if (index === 0) {
-            const headX = segment.x;
-            const headY = segment.y;
-
-            context.fillStyle = 'white';
-            context.beginPath();
-
-            if (direction.x === 1 && direction.y === 0) { 
-                context.moveTo(headX, headY); 
-                context.lineTo(headX + blockSize, headY + blockSize / 2); 
-                context.lineTo(headX, headY + blockSize);
-            } else if (direction.x === -1 && direction.y === 0) { 
-                context.moveTo(headX + blockSize, headY); 
-                context.lineTo(headX, headY + blockSize / 2);
-                context.lineTo(headX + blockSize, headY + blockSize); 
-            } else if (direction.x === 0 && direction.y === -1) {
-                context.moveTo(headX, headY + blockSize); 
-                context.lineTo(headX + blockSize / 2, headY);
-                context.lineTo(headX + blockSize, headY + blockSize);
-            } else if (direction.x === 0 && direction.y === 1) { 
-                context.moveTo(headX, headY); 
-                context.lineTo(headX + blockSize / 2, headY + blockSize); 
-                context.lineTo(headX + blockSize, headY); 
-            }
-
-            context.closePath();
-            context.fill();
+            context.drawImage(snakeHeadImage, segment.x, segment.y, blockSize, blockSize);
         } else {
-            context.fillStyle = 'green';
-            context.fillRect(segment.x, segment.y, blockSize, blockSize);
+            context.drawImage(snakeBodyImage, segment.x, segment.y, blockSize, blockSize);
         }
     });
 }
-
 
 function moveSnake() {
     const head = {x: snake[0].x + direction.x * blockSize, y: snake[0].y + direction.y * blockSize};
 
     if (head.x < 0 || head.y < 0 || head.x >= canvas.width || head.y >= canvas.height || checkCollisionWithSnake(head)) {
         gameOver = true;
-        return; 
+        return;
     }
 
     snake.unshift(head);
@@ -83,8 +67,8 @@ function moveSnake() {
     for (let i = 0; i < fruits.length; i++) {
         if (head.x === fruits[i].x && head.y === fruits[i].y) {
             score += 1;
-            fruits.splice(i, 1); 
-            spawnFruit(); 
+            fruits.splice(i, 1);
+            spawnFruit();
             return;
         }
     }
@@ -93,9 +77,9 @@ function moveSnake() {
 }
 
 function drawFruits() {
-    context.fillStyle = 'red';
+    const fruitSize = blockSize * 1.5;
     fruits.forEach(fruit => {
-        context.fillRect(fruit.x, fruit.y, blockSize, blockSize);
+        context.drawImage(fruitImage, fruit.x, fruit.y, fruitSize, fruitSize);
     });
 }
 
@@ -106,16 +90,16 @@ function spawnFruit() {
     };
 
     if (checkCollisionWithSnake(fruit)) {
-        spawnFruit(); 
+        spawnFruit();
     } else {
-        fruits.push(fruit); 
+        fruits.push(fruit);
     }
 }
 
 function spawnFruits() {
     fruits = [];
     for (let i = 0; i < 3; i++) {
-        spawnFruit(); 
+        spawnFruit();
     }
 }
 
@@ -130,13 +114,13 @@ window.addEventListener('keydown', (event) => {
                 if (direction.y === 0) direction = {x: 0, y: -1};
                 break;
             case 'ArrowDown':
-                if (direction.y === 0) direction = {x: 0, y: 1}; 
+                if (direction.y === 0) direction = {x: 0, y: 1};
                 break;
             case 'ArrowLeft':
-                if (direction.x === 0) direction = {x: -1, y: 0}; 
+                if (direction.x === 0) direction = {x: -1, y: 0};
                 break;
             case 'ArrowRight':
-                if (direction.x === 0) direction = {x: 1, y: 0}; 
+                if (direction.x === 0) direction = {x: 1, y: 0};
                 break;
         }
     }
@@ -146,7 +130,7 @@ window.addEventListener('keydown', (event) => {
     }
 
     if (event.code === 'KeyR' && gameOver) {
-        init(); 
+        init();
     }
 });
 
@@ -173,7 +157,7 @@ function displayPauseResumeInstructions() {
 function drawBorder() {
     context.strokeStyle = 'white';
     context.lineWidth = 5;
-    context.strokeRect(0, 0, canvas.width, canvas.height); // Draw a white border
+    context.strokeRect(0, 0, canvas.width, canvas.height);
 }
 
 function gameLoop(timestamp) {
@@ -181,15 +165,16 @@ function gameLoop(timestamp) {
         if (!gamePaused && !gameOver) {
             moveSnake();
         }
-        lastMoveTime = timestamp; 
+        lastMoveTime = timestamp;
     }
 
     context.clearRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
 
     if (!gamePaused && !gameOver) {
         drawSnake();
         drawFruits();
-        drawBorder(); 
+        drawBorder();
         displayScore();
     } else if (gameOver) {
         displayGameOver();
@@ -205,5 +190,12 @@ function gameLoop(timestamp) {
     requestAnimationFrame(gameLoop);
 }
 
-init();
-requestAnimationFrame(gameLoop);
+Promise.all([
+    new Promise(resolve => backgroundImage.onload = resolve),
+    new Promise(resolve => snakeHeadImage.onload = resolve),
+    new Promise(resolve => snakeBodyImage.onload = resolve),
+    new Promise(resolve => fruitImage.onload = resolve)
+]).then(() => {
+    init();
+    requestAnimationFrame(gameLoop);
+});
