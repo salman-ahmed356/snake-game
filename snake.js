@@ -129,8 +129,12 @@ window.addEventListener('keydown', (event) => {
         gamePaused = !gamePaused;
     }
 
+    if (event.code === 'KeyR' && gamePaused) {
+        gamePaused = false; 
+    }
+
     if (event.code === 'KeyR' && gameOver) {
-        init();
+        init(); 
     }
 });
 
