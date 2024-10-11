@@ -194,6 +194,8 @@ function gameLoop(timestamp) {
     requestAnimationFrame(gameLoop);
 }
 
+
+
 Promise.all([
     new Promise(resolve => backgroundImage.onload = resolve),
     new Promise(resolve => snakeHeadImage.onload = resolve),
